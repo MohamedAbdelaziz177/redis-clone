@@ -40,7 +40,7 @@ func handleConnection(conn net.Conn) {
 
 	rd := bufio.NewReader(conn)
 
-	rd.ReadByte()
+	//rd.ReadByte()
 	str, err := rd.ReadString('\n')
 
 	if err != nil {
@@ -48,7 +48,7 @@ func handleConnection(conn net.Conn) {
 		return
 	}
 
-	str = str[:len(str)-2]
+	str = str[1 : len(str)-2]
 
 	if str == "PING" {
 		conn.Write([]byte("+PONG\r\n"))
