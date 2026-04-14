@@ -45,7 +45,10 @@ func main() {
 
 func parseArray(conn net.Conn) []string {
 
-	str, err := bufio.NewReader(conn).ReadString('\n')
+	rd := bufio.NewReader(conn)
+
+	rd.ReadByte()
+	str, err := rd.ReadString('\n')
 
 	if err != nil {
 		fmt.Println("Error reading string: ", err.Error())
@@ -61,14 +64,14 @@ func parseArray(conn net.Conn) []string {
 	result := make([]string, count)
 
 	for i := 0; i < count; i++ {
-		str, _ = bufio.NewReader(conn).ReadString('\n')
+		str, _ = rd.ReadString('\n')
 		str = strings.TrimRight(str, "\r\n")
 		str = strings.TrimLeft(str, "$")
 
 		var length int
 		fmt.Sscanf(str, "%d", &length)
 
-		str, _ = bufio.NewReader(os.Stdin).ReadString('\n')
+		str, _ = rd.ReadString('\n')
 		str = strings.TrimRight(str, "\r\n")
 
 		result[i] = str
