@@ -34,11 +34,28 @@ func main() {
 
 	for {
 
-		str := parseArray(conn)[0]
-		if str == "PING" {
-			conn.Write([]byte("+PONG\r\n"))
+		parser := NewParser(bufio.NewReader(conn))
+
+		value, err := parser.ParseValue()
+		if err != nil {
+			fmt.Println("Error parsing value: ", err.Error())
+			return
 		}
-		//handleConnection(conn)
+
+		if value.Type == ARRAY && len(value.Array) > 0 && value.Array[0].Str == "PING" {
+			conn.Write([]byte("+PONG\r\n"))
+		} else if value.Type == STRING && value.Str == "PING" {
+			conn.Write([]byte("+PONG\r\n"))
+		} else if value.Type == BULK && value.Bulk == "PING" {
+			conn.Write([]byte("+PONG\r\n"))
+		} else if value.Type == INTEGER && value.Int == 0 { // This is just an example, you can adjust the condition as needed
+			conn.Write([]byte("+PONG\r\n"))
+		} else if value.Type == ERROR && value.Err == "PING" {
+			conn.Write([]byte("+PONG\r\n"))
+		} else {
+			conn.Write([]byte("-ERR unknown command\r\n"))
+		}
+
 	}
 
 }
