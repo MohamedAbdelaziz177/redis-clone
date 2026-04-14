@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"net"
 	"os"
@@ -40,26 +39,32 @@ func main() {
 func handleConnection(conn net.Conn) {
 	//defer conn.Close()
 
-	parser := NewParser(bufio.NewReader(conn))
+	conn.Write([]byte("+PONG\r\n"))
 
-	value, err := parser.ParseValue()
-	if err != nil {
-		fmt.Println("Error parsing value: ", err.Error())
-		return
-	}
+	/*
 
-	if value.Type == ARRAY && len(value.Array) > 0 && value.Array[0].Str == "PING" {
-		conn.Write([]byte("+PONG\r\n"))
-	} else if value.Type == STRING && value.Str == "PING" {
-		conn.Write([]byte("+PONG\r\n"))
-	} else if value.Type == BULK && value.Bulk == "PING" {
-		conn.Write([]byte("+PONG\r\n"))
-	} else if value.Type == INTEGER && value.Int == 0 {
-		conn.Write([]byte("+PONG\r\n"))
-	} else if value.Type == ERROR && value.Err == "PING" {
-		conn.Write([]byte("+PONG\r\n"))
-	} else {
-		fmt.Println("Received unknown command: ", value)
-		conn.Write([]byte("+PONG\r\n"))
-	}
+		parser := NewParser(bufio.NewReader(conn))
+
+		value, err := parser.ParseValue()
+		if err != nil {
+			fmt.Println("Error parsing value: ", err.Error())
+			return
+		}
+
+		if value.Type == ARRAY && len(value.Array) > 0 && value.Array[0].Str == "PING" {
+			conn.Write([]byte("+PONG\r\n"))
+		} else if value.Type == STRING && value.Str == "PING" {
+			conn.Write([]byte("+PONG\r\n"))
+		} else if value.Type == BULK && value.Bulk == "PING" {
+			conn.Write([]byte("+PONG\r\n"))
+		} else if value.Type == INTEGER && value.Int == 0 {
+			conn.Write([]byte("+PONG\r\n"))
+		} else if value.Type == ERROR && value.Err == "PING" {
+			conn.Write([]byte("+PONG\r\n"))
+		} else {
+			fmt.Println("Received unknown command: ", value)
+			conn.Write([]byte("+PONG\r\n"))
+		}
+
+	*/
 }
