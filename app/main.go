@@ -61,7 +61,7 @@ func parseArray(conn net.Conn) []string {
 	result := make([]string, count)
 
 	for i := 0; i < count; i++ {
-		str, _ = bufio.NewReader(os.Stdin).ReadString('\n')
+		str, _ = bufio.NewReader(conn).ReadString('\n')
 		str = strings.TrimRight(str, "\r\n")
 		str = strings.TrimLeft(str, "$")
 
