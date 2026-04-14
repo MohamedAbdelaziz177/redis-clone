@@ -27,13 +27,16 @@ func main() {
 	defer l.Close()
 
 	conn, err := l.Accept()
-
-	handleConnection(conn)
-
 	if err != nil {
 		fmt.Println("Error accepting connection: ", err.Error())
 		os.Exit(1)
 	}
+
+	for {
+		conn.Write([]byte("+PONG\r\n"))
+		//handleConnection(conn)
+	}
+
 }
 
 // +PING\r\n
