@@ -28,5 +28,5 @@ func ping() []byte {
 }
 
 func echo(value *resp.Value) []byte {
-	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(value.Array[1].Str), value.Array[1].Bulk))
+	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(value.Array[1].Bulk), value.Array[1].Bulk))
 }
