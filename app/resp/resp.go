@@ -1,4 +1,4 @@
-package main
+package resp
 
 import (
 	"bufio"
@@ -43,15 +43,15 @@ func (p *Parser) ParseValue() (Value, error) {
 
 	switch respType {
 	case STRING:
-		return p.ParseString()
+		return p.parseString()
 	case ERROR:
-		return p.ParseError()
+		return p.parseError()
 	case INTEGER:
-		return p.ParseInteger()
+		return p.parseInteger()
 	case BULK:
-		return p.ParseBulk()
+		return p.parseBulk()
 	case ARRAY:
-		return p.ParseArray()
+		return p.parseArray()
 	default:
 		return Value{}, fmt.Errorf("unknown RESP type: %c", respType)
 	}
@@ -65,7 +65,7 @@ func (p *Parser) getRespType() (RespType, error) {
 	return RespType(b), nil
 }
 
-func (p *Parser) ParseString() (Value, error) {
+func (p *Parser) parseString() (Value, error) {
 	line, err := p.reader.ReadString('\n')
 	if err != nil {
 		return Value{}, err
@@ -73,7 +73,7 @@ func (p *Parser) ParseString() (Value, error) {
 	return Value{Type: STRING, Str: strings.TrimSuffix(line, "\r\n")}, nil
 }
 
-func (p *Parser) ParseError() (Value, error) {
+func (p *Parser) parseError() (Value, error) {
 	line, err := p.reader.ReadString('\n')
 	if err != nil {
 		return Value{}, err
@@ -81,7 +81,7 @@ func (p *Parser) ParseError() (Value, error) {
 	return Value{Type: ERROR, Err: strings.TrimSuffix(line, "\r\n")}, nil
 }
 
-func (p *Parser) ParseInteger() (Value, error) {
+func (p *Parser) parseInteger() (Value, error) {
 
 	line, err := p.reader.ReadString('\n')
 	if err != nil {
@@ -98,7 +98,7 @@ func (p *Parser) ParseInteger() (Value, error) {
 	return Value{Type: INTEGER, Int: intVal}, nil
 }
 
-func (p *Parser) ParseBulk() (Value, error) {
+func (p *Parser) parseBulk() (Value, error) {
 
 	sizeStr, err := p.reader.ReadString('\n')
 
@@ -130,7 +130,7 @@ func (p *Parser) ParseBulk() (Value, error) {
 	return Value{Type: BULK, Bulk: string(buff)}, nil
 }
 
-func (p *Parser) ParseArray() (Value, error) {
+func (p *Parser) parseArray() (Value, error) {
 
 	sizeStr, err := p.reader.ReadString('\n')
 	if err != nil {
@@ -157,32 +157,3 @@ func (p *Parser) ParseArray() (Value, error) {
 
 	return Value{Type: ARRAY, Array: tokens}, nil
 }
-
-/*
-func (p *Parser) ParseArrayOfBulks() (Value, error) {
-
-	sizeVal, err := p.ParseInteger()
-	if err != nil {
-		return Value{}, err
-	}
-
-	sz := sizeVal.Int
-
-	tonkens := make([]Value, 0, sz)
-
-	for i := 0; i < sz; i++ {
-
-		if _, err := p.reader.ReadByte(); err != nil {
-			return Value{}, err
-		}
-
-		b, err := p.ParseBulk()
-		if err != nil {
-			return Value{}, err
-		}
-		tonkens = append(tonkens, b)
-	}
-
-	return Value{Type: ARRAY, Array: tonkens}, nil
-}
-*/

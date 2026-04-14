@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"net"
 	"os"
+
+	"github.com/codecrafters-io/redis-starter-go/app/commands"
+	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
 
 // Ensures gofmt doesn't remove the "net" and "os" imports in stage 1 (feel free to remove this!)
@@ -40,7 +43,7 @@ func main() {
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	parser := NewParser(conn)
+	parser := resp.NewParser(conn)
 
 	for {
 		value, err := parser.ParseValue()
@@ -49,19 +52,7 @@ func handleConnection(conn net.Conn) {
 			return
 		}
 
-		if value.Type == ARRAY && len(value.Array) > 0 && value.Array[0].Str == "PING" {
-			conn.Write([]byte("+PONG\r\n"))
-		} else if value.Type == STRING && value.Str == "PING" {
-			conn.Write([]byte("+PONG\r\n"))
-		} else if value.Type == BULK && value.Bulk == "PING" {
-			conn.Write([]byte("+PONG\r\n"))
-		} else if value.Type == INTEGER && value.Int == 0 {
-			conn.Write([]byte("+PONG\r\n"))
-		} else if value.Type == ERROR && value.Err == "PING" {
-			conn.Write([]byte("+PONG\r\n"))
-		} else {
-			fmt.Println("Received unknown command: ", value)
-			conn.Write([]byte("+PONG\r\n"))
-		}
+		conn.Write(commands.HandleCommand(&value))
+
 	}
 }
