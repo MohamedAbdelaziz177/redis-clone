@@ -9,7 +9,7 @@ import (
 
 func HandleCommand(value *resp.Value) []byte {
 	if value.Type == resp.ARRAY && len(value.Array) > 0 {
-		command := strings.ToUpper(value.Array[0].Str)
+		command := strings.ToUpper(value.Array[0].Bulk)
 		switch command {
 		case "PING":
 			return ping()
