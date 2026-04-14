@@ -31,8 +31,8 @@ type Parser struct {
 	reader *bufio.Reader
 }
 
-func NewParser(reader *bufio.Reader) *Parser {
-	return &Parser{reader: reader}
+func NewParser(reader io.Reader) *Parser {
+	return &Parser{reader: bufio.NewReader(reader)}
 }
 
 func (p *Parser) ParseValue() (Value, error) {
