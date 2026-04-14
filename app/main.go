@@ -26,14 +26,27 @@ func main() {
 
 	defer l.Close()
 
+	conn, err := l.Accept()
+	if err != nil {
+		fmt.Println("Error accepting connection: ", err.Error())
+		os.Exit(1)
+	}
+
+	rd := bufio.NewReader(conn)
+
 	for {
-		conn, err := l.Accept()
+		rd.ReadByte()
+		str, err := rd.ReadString('\n')
+
 		if err != nil {
-			fmt.Println("Error accepting connection: ", err.Error())
-			os.Exit(1)
+			fmt.Println("Error reading string: ", err.Error())
+			return
 		}
 
-		conn.Write([]byte("+PONG\r\n"))
+		str = strings.TrimRight(str, "\r\n")
+		if str == "PING" {
+			conn.Write([]byte("+PONG\r\n"))
+		}
 		//handleConnection(conn)
 	}
 
