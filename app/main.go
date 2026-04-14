@@ -32,8 +32,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	rd := bufio.NewReader(conn)
-
 	for {
 
 		str := parseArray(conn)[0]
