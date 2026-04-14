@@ -22,6 +22,9 @@ func main() {
 		fmt.Println("Failed to bind to port 6379")
 		os.Exit(1)
 	}
+
+	defer l.Close()
+
 	conn, err := l.Accept()
 
 	handleConnection(conn)
@@ -33,7 +36,7 @@ func main() {
 }
 
 func handleConnection(conn net.Conn) {
-	//defer conn.Close()
+	defer conn.Close()
 
 	rd := bufio.NewReader(conn)
 
@@ -47,7 +50,7 @@ func handleConnection(conn net.Conn) {
 
 	str = str[:len(str)-2]
 
-	if str != "PING" {
+	if str == "PING" {
 		conn.Write([]byte("+PONG\r\n"))
 	}
 }
