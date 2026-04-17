@@ -175,10 +175,10 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 	}
 
 	listName := value.Array[1].Bulk
-	timeoutSec := 0
+	timeoutSec := 0.0
 
 	if len(value.Array) >= 3 {
-		t, err := strconv.Atoi(value.Array[2].Bulk)
+		t, err := strconv.ParseFloat(value.Array[2].Bulk, 64)
 		if err == nil {
 			timeoutSec = t
 		}
