@@ -75,7 +75,7 @@ func (ls *ListStore) lrange(value *resp.Value) []byte {
 			return resp.EncodeArray([]string{})
 		}
 
-		return resp.EncodeArray(list[start:end])
+		return resp.EncodeArray(list[start : end+1])
 	}
 	return resp.EncodeError("Err")
 }
