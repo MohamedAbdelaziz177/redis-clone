@@ -182,7 +182,13 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 		}
 
 		if len(list) != 0 {
+			ele := list[0]
 			ls.lists[listName] = list[1:]
+
+			return resp.EncodeArray([]string{
+				listName,
+				ele})
+
 		}
 
 		t := 0
@@ -197,10 +203,11 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 			if timeout == 0 || time.Now().Before(deadline) {
 				for {
 					if len(list) != 0 {
+						ele := list[0]
 						ls.lists[listName] = list[1:]
 						return resp.EncodeArray([]string{
 							listName,
-							list[0]})
+							ele})
 					}
 					time.Sleep(100 * time.Millisecond)
 				}
