@@ -133,3 +133,23 @@ func (ls *ListStore) llen(value *resp.Value) []byte {
 	return resp.EncodeError("Err")
 
 }
+
+func (ls *ListStore) lpop(value *resp.Value) []byte {
+	if value.Type == resp.ARRAY && len(value.Array) == 2 {
+
+		listName := value.Array[1].Bulk
+		ls.mu.Lock()
+		defer ls.mu.Unlock()
+
+		list, ok := ls.lists[listName]
+
+		if !ok || len(list) == 0 {
+			return resp.EncodeBulk("")
+		}
+
+		element := list[0]
+		ls.lists[listName] = list[1:]
+		return resp.EncodeBulk(element)
+	}
+	return resp.EncodeError("Err")
+}
