@@ -39,7 +39,7 @@ func (s *store) HGET(value *resp.Value) []byte {
 		fmt.Printf("Retrieving key '%s'\n", key)
 		fmt.Printf("Value found: '%s' with expiration %d\n", val.value, val.expiration)
 		fmt.Printf("Current time: %d\n", time.Now().Unix())
-		if val.expiration != 0 && time.Now().Unix() > val.expiration {
+		if val.expiration != 0 && time.Now().Unix() >= val.expiration {
 			delete(s.hashmap, key)
 			return []byte(fmt.Sprintf("$%d\r\n", -1))
 		}
