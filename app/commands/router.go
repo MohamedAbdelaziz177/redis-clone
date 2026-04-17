@@ -53,6 +53,9 @@ func (ch *CommandHandler) HandleCommand(value *resp.Value) []byte {
 		case "RPUSH":
 			return ch.listStore.rpush(value)
 
+		case "LPUSH":
+			return ch.listStore.lpush(value)
+
 		case "LRANGE":
 			return ch.listStore.lrange(value)
 
