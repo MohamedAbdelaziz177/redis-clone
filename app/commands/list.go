@@ -196,17 +196,17 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 
 			deadline := time.Now().Add(time.Duration(t) * time.Second)
 
-			for {
-				if timeout == 0 || time.Now().Before(deadline) {
-					if len(list) != 0 {
-						ele := list[0]
-						ls.lists[listName] = list[1:]
-						return resp.EncodeArray([]string{
-							listName,
-							ele})
-					}
-					time.Sleep(50 * time.Millisecond)
+			for timeout == 0 || time.Now().Before(deadline) {
+
+				if len(list) != 0 {
+					ele := list[0]
+					ls.lists[listName] = list[1:]
+					return resp.EncodeArray([]string{
+						listName,
+						ele})
 				}
+				time.Sleep(50 * time.Millisecond)
+
 			}
 		}
 	}
