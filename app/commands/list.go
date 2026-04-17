@@ -205,7 +205,7 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 							listName,
 							ele})
 					}
-					time.Sleep(100 * time.Millisecond)
+					time.Sleep(50 * time.Millisecond)
 				}
 			}
 		}
