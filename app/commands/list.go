@@ -186,7 +186,7 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 
 	var deadline time.Time
 	if timeoutSec > 0 {
-		deadline = time.Now().Add(time.Duration(timeoutSec) * time.Second)
+		deadline = time.Now().Add(time.Duration(timeoutSec * float64(time.Second)))
 	}
 
 	for {
