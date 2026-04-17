@@ -60,8 +60,9 @@ func (s *store) HSET(value *resp.Value) []byte {
 			expiration: int64(0),
 		}
 
+		fmt.Printf("Setting key '%s' with value '%s'\n", key, val)
 		if len(value.Array) == 5 && strings.ToUpper(value.Array[3].Bulk) == "PX" {
-
+			fmt.Printf("Setting expiration for key '%s'\n", key)
 			if expirationMs, err := strconv.Atoi(value.Array[4].Bulk); err == nil {
 				item.expiration = time.Now().Unix() + int64(expirationMs)/1000
 			}
