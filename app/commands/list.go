@@ -12,6 +12,13 @@ type ListStore struct {
 	mu    *sync.RWMutex
 }
 
+func NewListStore() *ListStore {
+	return &ListStore{
+		lists: make(map[string][]string),
+		mu:    &sync.RWMutex{},
+	}
+}
+
 func (ls *ListStore) rpush(value *resp.Value) []byte {
 
 	if value.Type == resp.ARRAY && len(value.Array) == 3 {
