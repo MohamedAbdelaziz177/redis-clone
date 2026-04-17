@@ -27,7 +27,7 @@ func (ls *ListStore) rpush(value *resp.Value) []byte {
 
 		var elements = make([]string, 0)
 
-		for _, arg := range value.Array[3:] {
+		for _, arg := range value.Array[2:] {
 			elements = append(elements, arg.Bulk)
 		}
 
