@@ -35,16 +35,16 @@ func main() {
 			os.Exit(1)
 		}
 
-		go handleConnection(conn)
+		commands := commands.NewCommandHandler()
+		go handleConnection(conn, commands)
 	}
 
 }
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, commands *commands.CommandHandler) {
 	defer conn.Close()
 
 	parser := resp.NewParser(conn)
-	commands := commands.NewCommandHandler()
 
 	for {
 		value, err := parser.ParseValue()
