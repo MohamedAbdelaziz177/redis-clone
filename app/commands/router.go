@@ -59,6 +59,9 @@ func (ch *CommandHandler) HandleCommand(value *resp.Value) []byte {
 		case "LRANGE":
 			return ch.listStore.lrange(value)
 
+		case "LLEN":
+			return ch.listStore.llen(value)
+
 		default:
 			return resp.EncodeError("ERR unknown command")
 		}
