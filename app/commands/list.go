@@ -205,6 +205,7 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 		ls.mu.Unlock()
 
 		if timeoutSec > 0 && time.Now().After(deadline) {
+			resp.EncodeNull()
 			break
 		}
 

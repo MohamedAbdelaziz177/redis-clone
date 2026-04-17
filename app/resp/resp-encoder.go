@@ -39,3 +39,7 @@ func EncodeArray(values []string) []byte {
 
 	return result
 }
+
+func EncodeNull() []byte {
+	return []byte("$-1\r\n")
+}
