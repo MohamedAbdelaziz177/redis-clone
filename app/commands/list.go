@@ -176,7 +176,6 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 		defer ls.mu.Unlock()
 
 		list, ok := ls.lists[listName]
-
 		if !ok {
 			return resp.EncodeBulk("")
 		}
@@ -192,7 +191,7 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 		}
 
 		t := 0
-		if len(list) == 3 {
+		if len(value.Array) == 3 {
 			timeout, err := strconv.Atoi(value.Array[2].Bulk)
 			if err == nil {
 				t = timeout
@@ -214,5 +213,5 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 			}
 		}
 	}
-	return resp.EncodeError("Err")
+	return resp.EncodeBulk("")
 }
