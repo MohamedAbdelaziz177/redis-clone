@@ -8,12 +8,14 @@ import (
 )
 
 type CommandHandler struct {
-	store *store
+	store     *store
+	listStore *ListStore
 }
 
 func NewCommandHandler() *CommandHandler {
 	return &CommandHandler{
-		store: NewStore(),
+		store:     NewStore(),
+		listStore: NewListStore(),
 	}
 }
 
@@ -31,22 +33,25 @@ func (ch *CommandHandler) HandleCommand(value *resp.Value) []byte {
 			return echo(value)
 
 		case "SET":
-			return ch.store.HSET(value)
+			return ch.store.set(value)
 
 		case "GET":
-			return ch.store.HGET(value)
+			return ch.store.get(value)
 
 		case "DELETE":
-			ch.store.HDEL(*value)
+			ch.store.delete(*value)
 			return []byte("+OK\r\n")
 
 		case "EXISTS":
-			exists := ch.store.HEXISTS(*value)
+			exists := ch.store.exists(*value)
 			if exists {
 				return []byte(":1\r\n")
 			} else {
 				return []byte(":0\r\n")
 			}
+
+		case "RPUSH":
+			return ch.listStore.rpush(value)
 
 		default:
 			return []byte(fmt.Sprintf("-ERR unknown command '%s'\r\n", command))

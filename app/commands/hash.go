@@ -27,7 +27,7 @@ func NewStore() *store {
 	}
 }
 
-func (s *store) HGET(value *resp.Value) []byte {
+func (s *store) get(value *resp.Value) []byte {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -47,7 +47,7 @@ func (s *store) HGET(value *resp.Value) []byte {
 	return []byte(fmt.Sprintf("$%d\r\n", -1))
 }
 
-func (s *store) HSET(value *resp.Value) []byte {
+func (s *store) set(value *resp.Value) []byte {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -73,13 +73,13 @@ func (s *store) HSET(value *resp.Value) []byte {
 	return []byte("-ERR invalid command format\r\n")
 }
 
-func (s *store) HGETALL() map[string]ValueItem {
+func (s *store) getAll() map[string]ValueItem {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.hashmap
 }
 
-func (s *store) HEXISTS(value resp.Value) bool {
+func (s *store) exists(value resp.Value) bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -93,7 +93,7 @@ func (s *store) HEXISTS(value resp.Value) bool {
 	return false
 }
 
-func (s *store) HDEL(value resp.Value) {
+func (s *store) delete(value resp.Value) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
