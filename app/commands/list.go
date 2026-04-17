@@ -173,7 +173,7 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 
 		listName := value.Array[1].Bulk
 		ls.mu.Lock()
-		defer ls.mu.Unlock()
+		//defer ls.mu.Unlock()
 
 		list, _ := ls.lists[listName]
 
