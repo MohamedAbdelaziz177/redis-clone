@@ -70,7 +70,7 @@ func (p *Parser) parseString() (Value, error) {
 	if err != nil {
 		return Value{}, err
 	}
-	return Value{Type: STRING, Str: strings.TrimSuffix(line, "\r\n")}, nil
+	return Value{Type: STRING, Str: strings.TrimSuffix(line, CRLF)}, nil
 }
 
 func (p *Parser) parseError() (Value, error) {
@@ -78,7 +78,7 @@ func (p *Parser) parseError() (Value, error) {
 	if err != nil {
 		return Value{}, err
 	}
-	return Value{Type: ERROR, Err: strings.TrimSuffix(line, "\r\n")}, nil
+	return Value{Type: ERROR, Err: strings.TrimSuffix(line, CRLF)}, nil
 }
 
 func (p *Parser) parseInteger() (Value, error) {
@@ -88,7 +88,7 @@ func (p *Parser) parseInteger() (Value, error) {
 		return Value{}, err
 	}
 
-	intStr := strings.TrimSuffix(line, "\r\n")
+	intStr := strings.TrimSuffix(line, CRLF)
 
 	intVal, err := strconv.Atoi(intStr)
 	if err != nil {
@@ -106,7 +106,7 @@ func (p *Parser) parseBulk() (Value, error) {
 		return Value{}, err
 	}
 
-	sizeStr = strings.TrimSuffix(sizeStr, "\r\n")
+	sizeStr = strings.TrimSuffix(sizeStr, CRLF)
 
 	sz, err := strconv.Atoi(sizeStr)
 	if err != nil {
@@ -137,7 +137,7 @@ func (p *Parser) parseArray() (Value, error) {
 		return Value{}, err
 	}
 
-	sz, err := strconv.Atoi(strings.TrimSuffix(sizeStr, "\r\n"))
+	sz, err := strconv.Atoi(strings.TrimSuffix(sizeStr, CRLF))
 	if err != nil {
 		return Value{}, err
 	}
