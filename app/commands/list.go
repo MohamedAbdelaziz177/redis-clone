@@ -202,16 +202,15 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 			return resp.EncodeArray([]string{listName, ele})
 		}
 
-		ls.mu.Unlock()
-
 		if timeoutSec > 0 && time.Now().After(deadline) {
-			resp.EncodeNull()
-			break
+			ls.mu.Unlock()
+			return resp.EncodeNull()
 		}
 
+		ls.mu.Unlock()
 		time.Sleep(50 * time.Millisecond)
 
 	}
 
-	return []byte("*-1\r\n")
+	return resp.EncodeNull()
 }
