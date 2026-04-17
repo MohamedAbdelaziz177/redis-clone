@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
@@ -163,6 +164,48 @@ func (ls *ListStore) lpop(value *resp.Value) []byte {
 			return resp.EncodeBulk(element)
 		}
 
+	}
+	return resp.EncodeError("Err")
+}
+
+func (ls *ListStore) blpop(value *resp.Value) []byte {
+	if value.Type == resp.ARRAY && len(value.Array) >= 2 {
+
+		listName := value.Array[1].Bulk
+		ls.mu.Lock()
+		defer ls.mu.Unlock()
+
+		list, ok := ls.lists[listName]
+
+		if !ok {
+			return resp.EncodeBulk("")
+		}
+
+		if len(list) != 0 {
+			ls.lists[listName] = list[1:]
+		}
+
+		t := 0
+		if len(list) == 3 {
+			timeout, err := strconv.Atoi(value.Array[2].Bulk)
+			if err == nil {
+				t = timeout
+			}
+
+			deadline := time.Now().Add(time.Duration(t) * time.Second)
+
+			if timeout == 0 || time.Now().Before(deadline) {
+				for {
+					if len(list) != 0 {
+						ls.lists[listName] = list[1:]
+						return resp.EncodeArray([]string{
+							listName,
+							list[0]})
+					}
+					time.Sleep(100 * time.Millisecond)
+				}
+			}
+		}
 	}
 	return resp.EncodeError("Err")
 }
