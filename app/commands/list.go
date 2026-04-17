@@ -118,3 +118,18 @@ func (ls *ListStore) lrange(value *resp.Value) []byte {
 	}
 	return resp.EncodeError("Err")
 }
+
+func (ls *ListStore) llen(value *resp.Value) []byte {
+	if value.Type == resp.ARRAY && len(value.Array) == 2 {
+		listName := value.Array[1].Bulk
+		ls.mu.RLock()
+		defer ls.mu.RUnlock()
+		list, ok := ls.lists[listName]
+		if !ok {
+			return resp.EncodeInteger(0)
+		}
+		return resp.EncodeInteger(len(list))
+	}
+	return resp.EncodeError("Err")
+
+}
