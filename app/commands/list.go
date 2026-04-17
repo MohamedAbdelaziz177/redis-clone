@@ -190,8 +190,8 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 	}
 
 	for {
-		ls.mu.Lock()
 
+		ls.mu.Lock()
 		list, exists := ls.lists[listName]
 
 		if exists && len(list) > 0 {
@@ -205,6 +205,7 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 		ls.mu.Unlock()
 
 		if timeoutSec > 0 && time.Now().After(deadline) {
+			break
 		}
 
 		time.Sleep(50 * time.Millisecond)
