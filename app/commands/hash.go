@@ -36,10 +36,7 @@ func (s *store) HGET(value *resp.Value) []byte {
 		key := value.Array[1].Bulk
 		val, _ := s.hashmap[key]
 
-		fmt.Printf("Retrieving key '%s'\n", key)
-		fmt.Printf("Value found: '%s' with expiration %d\n", val.value, val.expiration)
-		fmt.Printf("Current time: %d\n", time.Now().Unix())
-		if val.expiration != 0 && time.Now().Unix() > val.expiration {
+		if val.expiration != 0 && time.Now().UnixMilli() > val.expiration {
 			delete(s.hashmap, key)
 			return []byte(fmt.Sprintf("$%d\r\n", -1))
 		}
@@ -63,11 +60,9 @@ func (s *store) HSET(value *resp.Value) []byte {
 			expiration: int64(0),
 		}
 
-		fmt.Printf("Setting key '%s' with value '%s'\n", key, val)
 		if len(value.Array) == 5 && strings.ToUpper(value.Array[3].Bulk) == "PX" {
-			fmt.Printf("Setting expiration for key '%s'\n", key)
 			if expirationMs, err := strconv.Atoi(value.Array[4].Bulk); err == nil {
-				item.expiration = time.Now().Unix() + int64(expirationMs)/1000
+				item.expiration = time.Now().UnixMilli() + int64(expirationMs)
 			}
 		}
 
