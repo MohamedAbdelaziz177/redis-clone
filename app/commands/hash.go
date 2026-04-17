@@ -19,7 +19,7 @@ func NewStore() *store {
 	}
 }
 
-func (s *store) HGET(value resp.Value) []byte {
+func (s *store) HGET(value *resp.Value) []byte {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -34,7 +34,7 @@ func (s *store) HGET(value resp.Value) []byte {
 	return []byte(fmt.Sprintf("$%d\r\n", -1))
 }
 
-func (s *store) HSET(value resp.Value) []byte {
+func (s *store) HSET(value *resp.Value) []byte {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

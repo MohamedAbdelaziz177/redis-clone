@@ -44,6 +44,7 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	parser := resp.NewParser(conn)
+	commands := commands.NewCommandHandler()
 
 	for {
 		value, err := parser.ParseValue()

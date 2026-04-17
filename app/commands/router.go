@@ -31,10 +31,10 @@ func (ch *CommandHandler) HandleCommand(value *resp.Value) []byte {
 			return echo(value)
 
 		case "SET":
-			return ch.store.HSET(*value)
+			return ch.store.HSET(value)
 
 		case "GET":
-			return ch.store.HGET(*value)
+			return ch.store.HGET(value)
 
 		case "DELETE":
 			ch.store.HDEL(*value)
