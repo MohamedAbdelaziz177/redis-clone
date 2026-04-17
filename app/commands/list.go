@@ -135,7 +135,7 @@ func (ls *ListStore) llen(value *resp.Value) []byte {
 }
 
 func (ls *ListStore) lpop(value *resp.Value) []byte {
-	if value.Type == resp.ARRAY && len(value.Array) == 2 {
+	if value.Type == resp.ARRAY && len(value.Array) >= 2 {
 
 		listName := value.Array[1].Bulk
 		ls.mu.Lock()
@@ -147,9 +147,22 @@ func (ls *ListStore) lpop(value *resp.Value) []byte {
 			return resp.EncodeBulk("")
 		}
 
-		element := list[0]
-		ls.lists[listName] = list[1:]
-		return resp.EncodeBulk(element)
+		if len(value.Array) == 3 {
+			count, _ := strconv.Atoi(value.Array[2].Bulk)
+			if count > 0 && count < len(list) {
+
+				elements := list[:count]
+				ls.lists[listName] = list[count:]
+				return resp.EncodeArray(elements)
+
+			}
+		} else {
+
+			element := list[0]
+			ls.lists[listName] = list[1:]
+			return resp.EncodeBulk(element)
+		}
+
 	}
 	return resp.EncodeError("Err")
 }
