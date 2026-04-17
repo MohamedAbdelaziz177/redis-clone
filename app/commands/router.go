@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
@@ -26,6 +25,7 @@ func (ch *CommandHandler) HandleCommand(value *resp.Value) []byte {
 		command := strings.ToUpper(value.Array[0].Bulk)
 
 		switch command {
+
 		case "PING":
 			return ping()
 
@@ -40,23 +40,26 @@ func (ch *CommandHandler) HandleCommand(value *resp.Value) []byte {
 
 		case "DELETE":
 			ch.store.delete(*value)
-			return []byte("+OK\r\n")
+			return resp.EncodeString("OK")
 
 		case "EXISTS":
 			exists := ch.store.exists(*value)
 			if exists {
-				return []byte(":1\r\n")
+				return resp.EncodeInteger(1)
 			} else {
-				return []byte(":0\r\n")
+				return resp.EncodeInteger(0)
 			}
 
 		case "RPUSH":
 			return ch.listStore.rpush(value)
 
+		case "LRANGE":
+			return ch.listStore.lrange(value)
+
 		default:
-			return []byte(fmt.Sprintf("-ERR unknown command '%s'\r\n", command))
+			return resp.EncodeError("ERR unknown command")
 		}
 	}
 
-	return []byte("-ERR invalid command format\r\n")
+	return resp.EncodeError("ERR unknown command")
 }

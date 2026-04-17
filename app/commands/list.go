@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"strconv"
 	"sync"
 
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
@@ -45,4 +46,36 @@ func (ls *ListStore) rpush(value *resp.Value) []byte {
 	}
 
 	return []byte("-ERR invalid command format\r\n")
+}
+
+func (ls *ListStore) lrange(value *resp.Value) []byte {
+	if value.Type == resp.ARRAY && len(value.Array) == 4 {
+
+		listName := value.Array[1].Bulk
+		start, _ := strconv.Atoi(value.Array[2].Bulk)
+		end, _ := strconv.Atoi(value.Array[3].Bulk)
+
+		ls.mu.RLock()
+		defer ls.mu.RUnlock()
+
+		list, ok := ls.lists[listName]
+		if !ok {
+			return resp.EncodeArray([]string{})
+		}
+
+		if start < 0 {
+			start = 0
+		}
+
+		if end >= len(list) {
+			end = len(list) - 1
+		}
+
+		if start > end {
+			return resp.EncodeArray([]string{})
+		}
+
+		return resp.EncodeArray(list[start:end])
+	}
+	return resp.EncodeError("Err")
 }
