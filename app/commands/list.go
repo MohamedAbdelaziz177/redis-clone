@@ -64,7 +64,11 @@ func (ls *ListStore) lrange(value *resp.Value) []byte {
 		}
 
 		if start < 0 {
-			start = 0
+			start = len(list) + start
+		}
+
+		if end < 0 {
+			end = len(list) + end
 		}
 
 		if end >= len(list) {
