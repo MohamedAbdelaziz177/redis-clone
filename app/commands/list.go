@@ -21,10 +21,15 @@ func NewListStore() *ListStore {
 
 func (ls *ListStore) rpush(value *resp.Value) []byte {
 
-	if value.Type == resp.ARRAY && len(value.Array) == 3 {
+	if value.Type == resp.ARRAY && len(value.Array) >= 3 {
 
 		listName := value.Array[1].Bulk
-		element := value.Array[2].Bulk
+
+		var elements = make([]string, 0)
+
+		for _, arg := range value.Array[3:] {
+			elements = append(elements, arg.Bulk)
+		}
 
 		ls.mu.Lock()
 		defer ls.mu.Unlock()
@@ -33,7 +38,7 @@ func (ls *ListStore) rpush(value *resp.Value) []byte {
 		if !ok {
 			list = []string{}
 		}
-		list = append(list, element)
+		list = append(list, elements...)
 		ls.lists[listName] = list
 
 		return []byte(fmt.Sprintf(":%d\r\n", len(list)))
