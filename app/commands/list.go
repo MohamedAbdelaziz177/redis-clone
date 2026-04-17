@@ -169,47 +169,47 @@ func (ls *ListStore) lpop(value *resp.Value) []byte {
 }
 
 func (ls *ListStore) blpop(value *resp.Value) []byte {
-	if value.Type == resp.ARRAY && len(value.Array) >= 2 {
 
-		listName := value.Array[1].Bulk
-		ls.mu.Lock()
-		//defer ls.mu.Unlock()
+	if value.Type != resp.ARRAY || len(value.Array) < 2 {
+		return resp.EncodeError("-ERR wrong number of arguments for 'blpop' command")
+	}
 
-		list, _ := ls.lists[listName]
+	listName := value.Array[1].Bulk
+	timeoutSec := 0
 
-		if len(list) != 0 {
-			ele := list[0]
-			ls.lists[listName] = list[1:]
-
-			return resp.EncodeArray([]string{
-				listName,
-				ele})
-
-		}
-
-		t := 0
-		if len(value.Array) == 3 {
-			timeout, err := strconv.Atoi(value.Array[2].Bulk)
-			if err == nil {
-				t = timeout
-			}
-
-			deadline := time.Now().Add(time.Duration(t) * time.Second)
-
-			for timeout == 0 || time.Now().Before(deadline) {
-
-				if len(list) != 0 {
-					ele := list[0]
-					ls.lists[listName] = list[1:]
-					return resp.EncodeArray([]string{
-						listName,
-						ele})
-				}
-				ls.mu.Unlock()
-				time.Sleep(50 * time.Millisecond)
-
-			}
+	if len(value.Array) >= 3 {
+		t, err := strconv.Atoi(value.Array[2].Bulk)
+		if err == nil {
+			timeoutSec = t
 		}
 	}
-	return resp.EncodeArray([]string{""})
+
+	var deadline time.Time
+	if timeoutSec > 0 {
+		deadline = time.Now().Add(time.Duration(timeoutSec) * time.Second)
+	}
+
+	for {
+		ls.mu.Lock()
+
+		list, exists := ls.lists[listName]
+
+		if exists && len(list) > 0 {
+			ele := list[0]
+			ls.lists[listName] = list[1:]
+			ls.mu.Unlock()
+
+			return resp.EncodeArray([]string{listName, ele})
+		}
+
+		ls.mu.Unlock()
+
+		if timeoutSec > 0 && time.Now().After(deadline) {
+		}
+
+		time.Sleep(50 * time.Millisecond)
+
+	}
+
+	return []byte("*-1\r\n")
 }
