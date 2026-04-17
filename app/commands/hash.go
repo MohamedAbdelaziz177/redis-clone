@@ -63,7 +63,7 @@ func (s *store) HSET(value *resp.Value) []byte {
 		if len(value.Array) == 5 && strings.ToUpper(value.Array[3].Bulk) == "PX" {
 
 			if expirationMs, err := strconv.Atoi(value.Array[4].Bulk); err == nil {
-				item.expiration = time.Now().Unix() + int64(expirationMs)
+				item.expiration = time.Now().Unix() + int64(expirationMs)/1000
 			}
 		}
 
