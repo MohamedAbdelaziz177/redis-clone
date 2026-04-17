@@ -212,5 +212,4 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 
 	}
 
-	return resp.EncodeNull()
 }
