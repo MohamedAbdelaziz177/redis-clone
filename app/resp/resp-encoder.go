@@ -41,5 +41,5 @@ func EncodeArray(values []string) []byte {
 }
 
 func EncodeNull() []byte {
-	return []byte("$-1\r\n")
+	return []byte("*-1\r\n")
 }
