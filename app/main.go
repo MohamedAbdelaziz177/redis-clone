@@ -27,15 +27,16 @@ func main() {
 
 	defer l.Close()
 
+	commands := commands.NewCommandHandler()
+
 	for {
 
 		conn, err := l.Accept()
 		if err != nil {
 			fmt.Println("Error accepting connection: ", err.Error())
-			os.Exit(1)
+			continue
 		}
 
-		commands := commands.NewCommandHandler()
 		go handleConnection(conn, commands)
 	}
 
