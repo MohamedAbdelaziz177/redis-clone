@@ -175,10 +175,7 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 		ls.mu.Lock()
 		defer ls.mu.Unlock()
 
-		list, ok := ls.lists[listName]
-		if !ok {
-			return resp.EncodeArray([]string{""})
-		}
+		list, _ := ls.lists[listName]
 
 		if len(list) != 0 {
 			ele := list[0]
