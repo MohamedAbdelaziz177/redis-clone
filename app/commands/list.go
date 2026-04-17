@@ -177,7 +177,7 @@ func (ls *ListStore) blpop(value *resp.Value) []byte {
 
 		list, ok := ls.lists[listName]
 		if !ok {
-			return resp.EncodeBulk("")
+			return resp.EncodeArray([]string{""})
 		}
 
 		if len(list) != 0 {

@@ -26,6 +26,10 @@ func EncodeBulk(value string) []byte {
 
 func EncodeArray(values []string) []byte {
 
+	if len(values) == 0 {
+		return []byte("*-1\r\n")
+	}
+
 	var result []byte
 	result = append(result, []byte("*"+strconv.Itoa(len(values))+CRLF)...)
 
