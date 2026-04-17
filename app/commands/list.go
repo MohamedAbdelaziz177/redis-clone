@@ -51,12 +51,12 @@ func (ls *ListStore) rpush(value *resp.Value) []byte {
 func (ls *ListStore) lrange(value *resp.Value) []byte {
 	if value.Type == resp.ARRAY && len(value.Array) == 4 {
 
+		ls.mu.RLock()
+		defer ls.mu.RUnlock()
+
 		listName := value.Array[1].Bulk
 		start, _ := strconv.Atoi(value.Array[2].Bulk)
 		end, _ := strconv.Atoi(value.Array[3].Bulk)
-
-		ls.mu.RLock()
-		defer ls.mu.RUnlock()
 
 		list, ok := ls.lists[listName]
 		if !ok {
