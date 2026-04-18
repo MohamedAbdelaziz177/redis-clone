@@ -9,12 +9,14 @@ import (
 type CommandHandler struct {
 	store     *store
 	listStore *ListStore
+	setStore  *SetStore
 }
 
 func NewCommandHandler() *CommandHandler {
 	return &CommandHandler{
 		store:     NewStore(),
 		listStore: NewListStore(),
+		setStore:  NewSetStore(),
 	}
 }
 
@@ -27,10 +29,10 @@ func (ch *CommandHandler) HandleCommand(value *resp.Value) []byte {
 		switch command {
 
 		case "PING":
-			return ping()
+			return ch.ping()
 
 		case "ECHO":
-			return echo(value)
+			return ch.echo(value)
 
 		case "SET":
 			return ch.store.set(value)
@@ -67,6 +69,21 @@ func (ch *CommandHandler) HandleCommand(value *resp.Value) []byte {
 
 		case "BLPOP":
 			return ch.listStore.blpop(value)
+
+		case "SADD":
+			return ch.setStore.sadd(value)
+
+		case "SREM":
+			return ch.setStore.srem(value)
+
+		case "SMEMBERS":
+			return ch.setStore.smembers(value)
+
+		case "SISMEMBER":
+			return ch.setStore.sismember(value)
+
+		case "SCARD":
+			return ch.setStore.scard(value)
 
 		default:
 			return resp.EncodeError("ERR unknown command")
