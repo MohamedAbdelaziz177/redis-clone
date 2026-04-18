@@ -105,7 +105,7 @@ func (z *zsetStore) getSorted(key string) []ZEntry {
 		if entries[i].Score != entries[j].Score {
 			return entries[i].Score > entries[j].Score
 		}
-		return entries[i].Member < entries[j].Member
+		return entries[i].Member > entries[j].Member
 	})
 
 	return entries
