@@ -7,13 +7,13 @@ import (
 )
 
 type hashStore struct {
-	hashmap map[string]map[string]interface{}
+	hashmap map[string]map[string]string
 	mu      *sync.RWMutex
 }
 
 func NewHashStore() *hashStore {
 	return &hashStore{
-		hashmap: make(map[string]map[string]interface{}),
+		hashmap: make(map[string]map[string]string),
 		mu:      &sync.RWMutex{},
 	}
 }
@@ -21,6 +21,10 @@ func NewHashStore() *hashStore {
 func (hs *hashStore) hset(value *resp.Value) []byte {
 
 	if value.Type == resp.ARRAY && len(value.Array) >= 4 {
+
+		if (len(value.Array)-2)%2 != 0 {
+			return resp.EncodeError("ERR syntax error")
+		}
 
 		mpKey := value.Array[1].Bulk
 
@@ -30,15 +34,20 @@ func (hs *hashStore) hset(value *resp.Value) []byte {
 		mp, ok := hs.hashmap[mpKey]
 
 		if !ok {
-			mp = make(map[string]interface{})
+			mp = make(map[string]string)
 		}
 
 		c := 0
-		for i := 2; i < len(value.Array)-1; i += 2 {
+		for i := 2; i < len(value.Array); i += 2 {
 			field := value.Array[i].Bulk
 			val := value.Array[i+1].Bulk
+
+			_, exists := mp[field]
+			if !exists {
+				c++
+			}
+
 			mp[field] = val
-			c++
 		}
 
 		hs.hashmap[mpKey] = mp
@@ -69,7 +78,7 @@ func (hs *hashStore) hget(value *resp.Value) []byte {
 			return resp.EncodeNull()
 		}
 
-		return resp.EncodeBulk(val.(string))
+		return resp.EncodeBulk(val)
 	}
 
 	return resp.EncodeError("Err Invalid resp format")
@@ -77,27 +86,31 @@ func (hs *hashStore) hget(value *resp.Value) []byte {
 
 func (hs *hashStore) hdel(value *resp.Value) []byte {
 
-	if value.Type == resp.ARRAY && len(value.Array) == 3 {
+	if value.Type == resp.ARRAY && len(value.Array) >= 3 {
 
 		mpKey := value.Array[1].Bulk
-		field := value.Array[2].Bulk
 
 		hs.mu.Lock()
 		defer hs.mu.Unlock()
 
 		mp, ok := hs.hashmap[mpKey]
 		if !ok {
-			return resp.EncodeError("No Such Hash_Key")
+			return resp.EncodeInteger(0)
 		}
 
-		_, exists := mp[field]
-		if !exists {
-			return resp.EncodeError("Field does not exist")
+		c := 0
+		for i := 2; i < len(value.Array); i++ {
+
+			_, exists := mp[value.Array[i].Bulk]
+			if exists {
+				c++
+				delete(mp, value.Array[i].Bulk)
+			}
 		}
 
-		delete(mp, field)
-		return resp.EncodeInteger(1)
+		return resp.EncodeInteger(c)
 	}
+
 	return resp.EncodeError("Err Invalid resp format")
 }
 
@@ -113,7 +126,7 @@ func (hs *hashStore) hexists(value *resp.Value) []byte {
 
 		mp, ok := hs.hashmap[mpKey]
 		if !ok {
-			return resp.EncodeError("No Such Hash_Key")
+			return resp.EncodeInteger(0)
 		}
 
 		_, exists := mp[field]
