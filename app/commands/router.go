@@ -50,12 +50,7 @@ func (ch *CommandHandler) HandleCommand(value *resp.Value) []byte {
 			return resp.EncodeString("OK")
 
 		case "EXISTS":
-			exists := ch.store.exists(*value)
-			if exists {
-				return resp.EncodeInteger(1)
-			} else {
-				return resp.EncodeInteger(0)
-			}
+			return ch.store.exists(*value)
 
 		case "HSET":
 			return ch.hashStore.hset(value)

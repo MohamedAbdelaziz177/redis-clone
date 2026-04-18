@@ -1,0 +1,128 @@
+# ================================================================
+# Redis CLI Test Suite
+# Usage: paste commands into redis-cli interactive session
+#        or run: redis-cli -p 6379 < redis_tests.txt
+# ================================================================
+
+
+# ================================================================
+# STRING COMMANDS
+# ================================================================
+
+# SET / GET
+SET user:name "Mo"
+GET user:name
+
+# SET with expiry (PX = Milliseconds)
+SET session:token "abc123" PX 100
+GET session:token
+
+
+# GET non-existing key
+GET totally_missing_key
+
+# SET then DEL
+SET temp_key "temporary"
+DEL temp_key
+GET temp_key
+
+# EXISTS
+SET exists_key "yes"
+EXISTS exists_key
+EXISTS missing_key
+
+
+# ================================================================
+# HASH COMMANDS
+# ================================================================
+
+# HSET — multiple fields at once, returns count of NEW fields
+HSET user:1 name "Mo" age "28" role "admin" city "Cairo"
+
+# HGET — single field
+HGET user:1 name
+HGET user:1 age
+
+# HGET — missing field should return (nil)
+HGET user:1 ghost
+
+# HGET — missing key should return (nil)
+HGET no_such_key field
+
+# HMGET — multiple fields, missing ones return (nil)
+HMGET user:1 name age ghost
+
+# HGETALL — returns flat field/value array
+HGETALL user:1
+
+# HSET update — should return 0 (no new fields)
+HSET user:1 name "Updated Name"
+HGET user:1 name
+
+# HSET mix — 1 new field + 1 update, should return 1
+HSET user:1 role "superadmin" email "mo@example.com"
+
+# HEXISTS — 1 if exists, 0 if not
+HEXISTS user:1 name
+HEXISTS user:1 ghost
+HEXISTS no_such_key field
+
+
+# HKEYS / HVALS
+HKEYS user:1
+HVALS user:1
+
+# HDEL — single field
+HDEL user:1 city
+HEXISTS user:1 city
+
+# HDEL — multiple fields, one missing — should return 2 not 3
+HSET user:2 a "1" b "2" c "3"
+HDEL user:2 a ghost b
+HGETALL user:2
+
+# HDEL — non-existing key should return 0
+HDEL no_such_key some_field
+
+
+
+# ================================================================
+# LIST COMMANDS
+# ================================================================
+
+# RPUSH — push to tail, returns new list length
+RPUSH mylist "a" "b" "c"
+
+# LPUSH — push to head, returns new list length
+LPUSH mylist "z" "y"
+
+# LRANGE — get elements by index range (0 -1 = all)
+LRANGE mylist 0 -1
+LRANGE mylist 0 2
+
+# LLEN — list length
+LLEN mylist
+LLEN no_such_key
+
+# LPOP / RPOP — pop from head / tail
+LPOP mylist
+LRANGE mylist 0 -1
+
+# pop from empty / missing list
+LPOP no_such_list
+
+
+# ================================================================
+# CROSS-COMMAND / EDGE CASE TESTS
+# ================================================================
+
+# wrong type — set a string key then try hash command on it
+SET str_key "hello"
+HSET str_key field value
+
+# DEL multiple keys at once
+SET k1 "v1"
+SET k2 "v2"
+SET k3 "v3"
+DEL k1 k2 k3
+EXISTS k1
