@@ -10,6 +10,7 @@ type CommandHandler struct {
 	store     *Store
 	listStore *ListStore
 	setStore  *SetStore
+	hashStore *hashStore
 }
 
 func NewCommandHandler() *CommandHandler {
@@ -17,6 +18,7 @@ func NewCommandHandler() *CommandHandler {
 		store:     NewStore(),
 		listStore: NewListStore(),
 		setStore:  NewSetStore(),
+		hashStore: NewHashStore(),
 	}
 }
 
@@ -54,6 +56,18 @@ func (ch *CommandHandler) HandleCommand(value *resp.Value) []byte {
 			} else {
 				return resp.EncodeInteger(0)
 			}
+
+		case "HSET":
+			return ch.hashStore.hset(value)
+
+		case "HGET":
+			return ch.hashStore.hget(value)
+
+		case "HDEL":
+			return ch.hashStore.hdel(value)
+
+		case "HEXISTS":
+			return ch.hashStore.hexists(value)
 
 		case "RPUSH":
 			return ch.listStore.rpush(value)
