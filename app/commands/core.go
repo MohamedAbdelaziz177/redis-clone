@@ -1,22 +1,16 @@
 package commands
 
 import (
-	"fmt"
-
 	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
 
 func (ch *CommandHandler) ping() []byte {
-	return []byte("+PONG\r\n")
+	return resp.EncodeString("PONG")
 
 }
 
 func (ch *CommandHandler) echo(value *resp.Value) []byte {
-	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(value.Array[1].Bulk), value.Array[1].Bulk))
-}
-
-func (ch *CommandHandler) quit() []byte {
-	return []byte("+OK\r\n")
+	return resp.EncodeBulk(value.Array[1].Bulk)
 }
 
 func (ch *CommandHandler) typ(value *resp.Value) []byte {
