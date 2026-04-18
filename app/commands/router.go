@@ -10,7 +10,6 @@ type CommandHandler struct {
 	store     *store
 	listStore *ListStore
 	setStore  *SetStore
-	zsetStore *zsetStore
 }
 
 func NewCommandHandler() *CommandHandler {
@@ -18,7 +17,6 @@ func NewCommandHandler() *CommandHandler {
 		store:     NewStore(),
 		listStore: NewListStore(),
 		setStore:  NewSetStore(),
-		zsetStore: NewZsetStore(),
 	}
 }
 
@@ -89,12 +87,6 @@ func (ch *CommandHandler) HandleCommand(value *resp.Value) []byte {
 
 		case "SCARD":
 			return ch.setStore.scard(value)
-
-		case "ZADD":
-			return ch.zsetStore.zadd(value)
-
-		case "ZRANK":
-			return ch.zsetStore.zrank(value)
 
 		default:
 			return resp.EncodeError("ERR unknown command")
