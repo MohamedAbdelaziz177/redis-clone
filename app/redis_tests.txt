@@ -1,7 +1,11 @@
+
+
+#######
+# Docker Command to Install Redis CLI -> docker run --rm -it --network=host redis redis-cli -p 6379
+
 # ================================================================
 # Redis CLI Test Suite
 # Usage: paste commands into redis-cli interactive session
-#        or run: redis-cli -p 6379 < redis_tests.txt
 # ================================================================
 
 
