@@ -34,6 +34,9 @@ func (ch *CommandHandler) HandleCommand(value *resp.Value) []byte {
 		case "ECHO":
 			return ch.echo(value)
 
+		case "TYPE":
+			return ch.typ(value)
+
 		case "SET":
 			return ch.store.set(value)
 
