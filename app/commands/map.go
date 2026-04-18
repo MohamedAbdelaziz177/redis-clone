@@ -79,7 +79,7 @@ func (s *Store) getAll() map[string]ValueItem {
 	return s.hashmap
 }
 
-func (s *Store) exists(value resp.Value) bool {
+func (s *Store) exists(value resp.Value) []byte {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -88,9 +88,11 @@ func (s *Store) exists(value resp.Value) bool {
 		key := value.Array[1].Bulk
 		_, ok := s.hashmap[key]
 
-		return ok
+		if ok {
+			return resp.EncodeInteger(1)
+		}
 	}
-	return false
+	return resp.EncodeInteger(0)
 }
 
 func (s *Store) delete(value resp.Value) {
