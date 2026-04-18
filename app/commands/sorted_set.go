@@ -8,32 +8,29 @@ import (
 )
 
 type zsetStore struct {
-	zsets map[string][]zsetItem
+	zsets map[string]zsetItem
 	mu    *sync.RWMutex
 }
 
-type zsetItem struct {
-	member string
-	score  float64
-}
+type zsetItem map[string]float64
 
 func NewZsetStore() *zsetStore {
 	return &zsetStore{
-		zsets: make(map[string][]zsetItem),
+		zsets: make(map[string]zsetItem),
 		mu:    &sync.RWMutex{},
 	}
 }
 
-func (zs *zsetStore) zadd(value *resp.Value) []byte {
+func (store *zsetStore) zadd(value *resp.Value) []byte {
 	if value.Type == resp.ARRAY && len(value.Array) >= 4 {
 		setName := value.Array[1].Bulk
 
-		zs.mu.Lock()
-		defer zs.mu.Unlock()
+		store.mu.Lock()
+		defer store.mu.Unlock()
 
-		zset, ok := zs.zsets[setName]
+		zset, ok := store.zsets[setName]
 		if !ok {
-			zset = []zsetItem{}
+			zset = make(zsetItem)
 		}
 
 		for i := 2; i < len(value.Array); i += 2 {
@@ -45,15 +42,11 @@ func (zs *zsetStore) zadd(value *resp.Value) []byte {
 
 			member := value.Array[i+1].Bulk
 
-			item := zsetItem{
-				member: member,
-				score:  score,
-			}
+			zset[member] = score
 
-			zset = append(zset, item)
 		}
 
-		zs.zsets[setName] = zset
+		store.zsets[setName] = zset
 
 		return resp.EncodeInteger(len(zset))
 	}
