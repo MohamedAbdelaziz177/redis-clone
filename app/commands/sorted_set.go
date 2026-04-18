@@ -33,6 +33,7 @@ func (store *zsetStore) zadd(value *resp.Value) []byte {
 			zset = make(zsetItem)
 		}
 
+		var count int = 0
 		for i := 2; i < len(value.Array); i += 2 {
 
 			score, err := strconv.ParseFloat(value.Array[i].Bulk, 64)
@@ -42,12 +43,16 @@ func (store *zsetStore) zadd(value *resp.Value) []byte {
 
 			member := value.Array[i+1].Bulk
 
+			score, exists := zset[member]
+			if !exists {
+				count++
+			}
 			zset[member] = score
 		}
 
 		store.zsets[setName] = zset
 
-		return resp.EncodeInteger((len(value.Array) - 2) / 2)
+		return resp.EncodeInteger(count)
 	}
 	return resp.EncodeError("ERR Invalid resp format")
 }
