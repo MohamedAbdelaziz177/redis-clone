@@ -15,19 +15,19 @@ type ValueItem struct {
 	expiration int64
 }
 
-type store struct {
+type Store struct {
 	hashmap map[string]ValueItem
 	mu      *sync.RWMutex
 }
 
-func NewStore() *store {
-	return &store{
+func NewStore() *Store {
+	return &Store{
 		hashmap: make(map[string]ValueItem),
 		mu:      &sync.RWMutex{},
 	}
 }
 
-func (s *store) get(value *resp.Value) []byte {
+func (s *Store) get(value *resp.Value) []byte {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -47,7 +47,7 @@ func (s *store) get(value *resp.Value) []byte {
 	return []byte(fmt.Sprintf("$%d\r\n", -1))
 }
 
-func (s *store) set(value *resp.Value) []byte {
+func (s *Store) set(value *resp.Value) []byte {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -73,13 +73,13 @@ func (s *store) set(value *resp.Value) []byte {
 	return []byte("-ERR invalid command format\r\n")
 }
 
-func (s *store) getAll() map[string]ValueItem {
+func (s *Store) getAll() map[string]ValueItem {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.hashmap
 }
 
-func (s *store) exists(value resp.Value) bool {
+func (s *Store) exists(value resp.Value) bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -93,7 +93,7 @@ func (s *store) exists(value resp.Value) bool {
 	return false
 }
 
-func (s *store) delete(value resp.Value) {
+func (s *Store) delete(value resp.Value) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

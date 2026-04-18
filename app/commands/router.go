@@ -7,7 +7,7 @@ import (
 )
 
 type CommandHandler struct {
-	store     *store
+	store     *Store
 	listStore *ListStore
 	setStore  *SetStore
 }
