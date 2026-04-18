@@ -103,7 +103,7 @@ func (z *zsetStore) getSorted(key string) []ZEntry {
 
 	sort.Slice(entries, func(i, j int) bool {
 		if entries[i].Score != entries[j].Score {
-			return entries[i].Score < entries[j].Score
+			return entries[i].Score > entries[j].Score
 		}
 		return entries[i].Member < entries[j].Member
 	})
