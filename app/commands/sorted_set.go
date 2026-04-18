@@ -43,12 +43,11 @@ func (store *zsetStore) zadd(value *resp.Value) []byte {
 			member := value.Array[i+1].Bulk
 
 			zset[member] = score
-
 		}
 
 		store.zsets[setName] = zset
 
-		return resp.EncodeInteger(len(zset))
+		return resp.EncodeInteger(len(value.Array) - 2)
 	}
 	return resp.EncodeError("ERR Invalid resp format")
 }
