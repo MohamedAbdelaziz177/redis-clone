@@ -92,6 +92,10 @@ func (ch *CommandHandler) HandleCommand(value *resp.Value) []byte {
 
 		case "ZADD":
 			return ch.zsetStore.zadd(value)
+
+		case "ZRANK":
+			return ch.zsetStore.zrank(value)
+
 		default:
 			return resp.EncodeError("ERR unknown command")
 		}

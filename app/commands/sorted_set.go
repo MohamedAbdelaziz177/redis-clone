@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"sort"
 	"strconv"
 	"sync"
 
@@ -13,6 +14,11 @@ type zsetStore struct {
 }
 
 type zsetItem map[string]float64
+
+type ZEntry struct {
+	Member string
+	Score  float64
+}
 
 func NewZsetStore() *zsetStore {
 	return &zsetStore{
@@ -55,4 +61,52 @@ func (store *zsetStore) zadd(value *resp.Value) []byte {
 		return resp.EncodeInteger(count)
 	}
 	return resp.EncodeError("ERR Invalid resp format")
+}
+
+func (store *zsetStore) zrank(value *resp.Value) []byte {
+	if value.Type == resp.ARRAY && len(value.Array) == 3 {
+		setName := value.Array[1].Bulk
+		member := value.Array[2].Bulk
+
+		store.mu.RLock()
+		defer store.mu.RUnlock()
+
+		sortedList := store.getSorted(setName)
+
+		if sortedList == nil {
+			return resp.EncodeBulk("")
+		}
+
+		for i, entry := range sortedList {
+			if entry.Member == member {
+				return resp.EncodeInteger(i)
+			}
+		}
+
+		return resp.EncodeBulk("")
+	}
+
+	return resp.EncodeError("ERR Invalid resp format")
+}
+
+func (z *zsetStore) getSorted(key string) []ZEntry {
+
+	item, ok := z.zsets[key]
+	if !ok {
+		return nil
+	}
+
+	entries := make([]ZEntry, 0, len(item))
+	for member, score := range item {
+		entries = append(entries, ZEntry{member, score})
+	}
+
+	sort.Slice(entries, func(i, j int) bool {
+		if entries[i].Score != entries[j].Score {
+			return entries[i].Score < entries[j].Score
+		}
+		return entries[i].Member < entries[j].Member
+	})
+
+	return entries
 }
