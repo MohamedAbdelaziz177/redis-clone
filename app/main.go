@@ -5,8 +5,8 @@ import (
 	"net"
 	"os"
 
-	"github.com/codecrafters-io/redis-starter-go/app/commands"
-	"github.com/codecrafters-io/redis-starter-go/app/resp"
+	"github.com/MohamedAbdelaziz177/redis-clone/app/commands"
+	"github.com/MohamedAbdelaziz177/redis-clone/app/resp"
 )
 
 // Ensures gofmt doesn't remove the "net" and "os" imports in stage 1 (feel free to remove this!)

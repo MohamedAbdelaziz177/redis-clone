@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"github.com/codecrafters-io/redis-starter-go/app/resp"
+	"github.com/MohamedAbdelaziz177/redis-clone/app/resp"
 )
 
 func (ch *CommandHandler) ping() []byte {
