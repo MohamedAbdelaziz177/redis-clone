@@ -14,7 +14,7 @@ import (
 type AOF struct {
 	file *os.File
 	rd   *bufio.Reader
-	wr   *bufio.Writer
+	Wr   *bufio.Writer
 	mu   *sync.RWMutex
 }
 
@@ -32,7 +32,7 @@ func NewAOF(config *AOFConfig) (*AOF, error) {
 	return &AOF{
 		file: file,
 		rd:   bufio.NewReader(file),
-		wr:   bufio.NewWriter(file),
+		Wr:   bufio.NewWriter(file),
 		mu:   &sync.RWMutex{},
 	}, nil
 }
@@ -43,7 +43,7 @@ func (aof *AOF) Append(value *resp.Value) error {
 	defer aof.mu.Unlock()
 
 	entry := aof.serializeValue(value)
-	_, err := aof.wr.Write(entry)
+	_, err := aof.Wr.Write(entry)
 
 	if err != nil {
 		return err

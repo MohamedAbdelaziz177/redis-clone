@@ -32,7 +32,7 @@ func NewAOFConfig() *AOFConfig {
 	}
 }
 
-func readAofConfig(path string) (*AOFConfig, error) {
+func ReadAofConfig(path string) (*AOFConfig, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -45,18 +45,18 @@ func readAofConfig(path string) (*AOFConfig, error) {
 	var config *AOFConfig = &AOFConfig{}
 
 	for scanner.Scan() {
-
 		ln := scanner.Text()
 		lnParts := strings.SplitN(ln, " ", 2)
-
+		if len(lnParts) < 2 {
+			continue
+		}
 		key := strings.ToUpper(strings.TrimSpace(lnParts[0]))
 		val := strings.ToUpper(strings.TrimSpace(lnParts[1]))
-
 		switch key {
 		case "APPENDDIRNAME":
 			config.AppendDirName = val
 		case "APPENDONLY":
-			if val == "yes" {
+			if val == "YES" {
 				config.AppendOnly = true
 			} else {
 				config.AppendOnly = false
@@ -67,7 +67,6 @@ func readAofConfig(path string) (*AOFConfig, error) {
 			config.AppendFileName = val
 		case "APPENDFSYNC":
 			config.AppendFsync = AppendFsync(val)
-
 		}
 	}
 
