@@ -13,10 +13,7 @@ import (
 )
 
 type Server struct {
-	port string
-
-	aofConfigPath string
-
+	port       string
 	aof        *persistance.AOF
 	cmdHandler *commands.CommandHandler
 }
@@ -43,14 +40,24 @@ func initServer(port string, aofConfigPath string) (*Server, error) {
 	}
 
 	aof, err := persistance.NewAOF(config)
-
 	if err != nil {
 		return nil, fmt.Errorf("Error Iniating AOF Persistance when Intiating The Server")
 	}
 
+	ch := commands.NewCommandHandler()
+
+	values, err := aof.ReadEntries()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range values {
+		ch.HandleCommand(&v)
+	}
+
 	return &Server{
 		port:       port,
-		cmdHandler: commands.NewCommandHandler(),
+		cmdHandler: ch,
 		aof:        aof,
 	}, nil
 }
@@ -94,7 +101,7 @@ func (s *Server) handleConnection(conn net.Conn) {
 			s.aof.Append(&value)
 
 			if err := s.aof.Wr.Flush(); err != nil {
-				fmt.Errorf("Error Flushing the AOF records")
+				return
 			}
 		}
 	}

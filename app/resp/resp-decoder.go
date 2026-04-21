@@ -157,3 +157,7 @@ func (p *Parser) parseArray() (Value, error) {
 
 	return Value{Type: ARRAY, Array: tokens}, nil
 }
+
+func (p *Parser) Reset(rd io.Reader) {
+	p.reader.Reset(rd)
+}

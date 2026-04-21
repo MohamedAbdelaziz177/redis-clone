@@ -13,9 +13,9 @@ import (
 
 type AOF struct {
 	file *os.File
-	rd   *bufio.Reader
 	Wr   *bufio.Writer
 	mu   *sync.RWMutex
+	p    *resp.Parser
 }
 
 func NewAOF(config *AOFConfig) (*AOF, error) {
@@ -31,9 +31,9 @@ func NewAOF(config *AOFConfig) (*AOF, error) {
 
 	return &AOF{
 		file: file,
-		rd:   bufio.NewReader(file),
 		Wr:   bufio.NewWriter(file),
 		mu:   &sync.RWMutex{},
+		p:    resp.NewParser(file),
 	}, nil
 }
 
@@ -52,30 +52,38 @@ func (aof *AOF) Append(value *resp.Value) error {
 	return nil
 }
 
-func (aof *AOF) ReadEntries() []resp.Value {
+func (aof *AOF) ReadEntries() ([]resp.Value, error) {
 
-	aof.mu.RLock()
-	defer aof.mu.RUnlock()
+	aof.mu.Lock()
+	defer aof.mu.Unlock()
+
+	if _, err := aof.file.Seek(0, io.SeekStart); err != nil {
+		return nil, err
+	}
+
+	aof.p.Reset(aof.file)
 
 	values := make([]resp.Value, 0)
-	parser := resp.NewParser(aof.file)
-
 	for {
 
-		val, err := parser.ParseValue()
+		val, err := aof.p.ParseValue()
 
 		if err == io.EOF {
 			break
 		}
 
 		if err != nil {
-			return values
+			return values, err
 		}
 
 		values = append(values, val)
 	}
 
-	return values
+	if _, err := aof.file.Seek(0, io.SeekEnd); err != nil {
+		return values, err
+	}
+
+	return values, nil
 }
 
 func (aof *AOF) serializeValue(value *resp.Value) []byte {
